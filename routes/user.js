@@ -4,9 +4,6 @@ const express = require('express');
 // Il faut importer le controller pour associer les fonctions (logique métier) aux différentes routes
 const userCtrl = require('../controllers/user');
 
-// On importe le middleware d'authentification afin d"authentifier les routes
-// const auth = require('../middleware/auth');
-
 // Création du router avec la fonction .Router d'express
 const router = express.Router();
 
