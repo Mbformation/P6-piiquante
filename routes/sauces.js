@@ -12,8 +12,7 @@ const multer = require('../middleware/multer-config');
 
 // Création du router avec méthode .Router d'express
 const router = express.Router();
-console.log('salut')
-console.log(saucesCtrl)
+
 // Création des routes pour les sauces
 router.get(`/`, saucesCtrl.getAllSauces);
 //router.get('/:id', auth, saucesCtrl.getOneSauce);
