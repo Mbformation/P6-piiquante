@@ -21,7 +21,7 @@ exports.getAllSauces = (req, res, next) => {
     );
   };
 
-  /*
+
 exports.getOneSauce = (req, res, next) => {
     Sauce.findOne({
       _id: req.params.id
@@ -39,7 +39,7 @@ exports.getOneSauce = (req, res, next) => {
   };
 
   exports.createSauce = (req, res, next) => {
-    const saucegObject = JSON.parse(req.body.sauce);
+    const sauceObject = JSON.parse(req.body.sauce);
     delete sauceObject._id;
     delete sauceObject._userId;
     const sauce = new Sauce({
@@ -48,8 +48,6 @@ exports.getOneSauce = (req, res, next) => {
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
         likes: 0,
         dislikes: 0,
-        usersLiked: [' '],
-        usersdisLiked: [' '],
     });
   
     sauce.save()
@@ -69,11 +67,17 @@ exports.getOneSauce = (req, res, next) => {
         .then((sauce) => {
             if (sauce.userId != req.auth.userId) {
                 res.status(401).json({ message : 'Not authorized'});
-            } else {
-                Sauce.updateOne({ _id: req.params.id}, { ...sauceObject, _id: req.params.id})
-                .then(() => res.status(200).json({message : 'Sauce modifiée'}))
-                .catch(error => res.status(401).json({ error }));
+                return;
+            } 
+            if (req.file) {
+              const filename = sauce.imageUrl.split('/images/')[1];
+              fs.unlink(`images/${filename}`, (error) => {
+                if(error){ throw error }
+              })
             }
+            Sauce.updateOne({ _id: req.params.id}, { ...sauceObject, _id: req.params.id})
+            .then(() => res.status(200).json({message : 'Sauce modifiée'}))
+            .catch(error => res.status(401).json({ error }));
         })
         .catch((error) => {
             res.status(400).json({ error });
@@ -87,9 +91,9 @@ exports.getOneSauce = (req, res, next) => {
             if (sauce.userId != req.auth.userId) {
                 res.status(401).json({message: 'Not authorized'});
             } else {
-                const filename = thing.imageUrl.split('/images/')[1];
+                const filename = sauce.imageUrl.split('/images/')[1];
                 fs.unlink(`images/${filename}`, () => {
-                    Thing.deleteOne({_id: req.params.id})
+                    Sauce.deleteOne({_id: req.params.id})
                         .then(() => { res.status(200).json({message: 'Sauce supprimée'})})
                         .catch(error => res.status(401).json({ error }));
                 });
@@ -99,4 +103,35 @@ exports.getOneSauce = (req, res, next) => {
             res.status(500).json({ error });
         });
  };
- */
+ 
+ exports.likeSauce = async (req, res, next) => {
+  const sauce = await Sauce.findOne({_id: req.params.id});
+  const userCanLike = !sauce.usersLiked.includes(req.auth.userId);
+  const userWantsToLike = req.body.like === 1;
+  const userCanDislike = !sauce.usersDisliked.includes(req.auth.userId)
+  const userWantsToDislike = req.body.like === -1;
+  const userCanCancel = sauce.usersLiked.includes(req.auth.userId) || sauce.usersDisliked.includes(req.auth.userId)
+  const userWantsToCancel = req.body.like === 0;
+  if(userCanLike && userWantsToLike){
+    sauce.usersLiked.push(req.auth.userId)
+  }
+  if(userCanDislike && userWantsToDislike){
+    sauce.usersDisliked.push(req.auth.userId)
+  }
+  if(userCanCancel && userWantsToCancel){
+    if(sauce.usersLiked.includes(req.auth.userId)){
+      const index = sauce.usersLiked.findIndex(a => a == req.auth.userId)
+      sauce.usersLiked.splice(index, 1)
+    } else
+    {
+      const index = sauce.usersDisliked.findIndex(a => a == req.auth.userId)
+      sauce.usersDisliked.splice(index, 1)
+    }
+  }
+  sauce.likes = sauce.usersLiked.length
+  sauce.dislikes = sauce.usersDisliked.length
+  sauce.save()
+  .then(() => { res.status(201).json({message: 'Sauce créée'})})
+    .catch(error => { res.status(400).json( { error })})
+};
+ 

@@ -13,6 +13,12 @@ const saucesRoutes = require('./routes/sauces');
 // On importe path pour l'enregistrement des images
 const path = require('path');
 
+// On importe le package helmet
+const helmet = require("helmet");
+
+// On importe la librairie .env
+require('dotenv').config();
+
 // 
 const router = express.Router();
 
@@ -20,9 +26,12 @@ const router = express.Router();
 // On crée l'application express
 const app = express();
 
+// On lance la protection helmet
+app.use(helmet({crossOriginResourcePolicy: false}));
+
 // Connexion au server mongoDB
 //mongoose.connect('mongodb+srv://admin:openclassrooms@hottakes.kkbduam.mongodb.net/?retryWrites=true&w=majority',
-mongoose.connect('mongodb+srv://Admin:openclassrooms@cluster0.r0n31lw.mongodb.net/HotTakes?retryWrites=true&w=majority',
+mongoose.connect(`mongodb+srv://${process.env.DB_USER}:${process.env.DB_PWD}@${process.env.DB_CLUSTER}/${process.env.DB_NAME}?retryWrites=true&w=majority`,
     {
         useNewUrlParser: true,
         useUnifiedTopology: true

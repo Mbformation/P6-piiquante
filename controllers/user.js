@@ -9,6 +9,11 @@ const User = require('../models/user');
 
 // Creation d'un utilisateur
 exports.signup = (req, res, next) => {
+    const strongPassword = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#_?&])[A-Za-z\d@$!%_*#?&]{8,}$/
+    if(!strongPassword.test(req.body.password)){
+
+        return res.status(400).json({message: 'Mot de passe doit contenir au moins 1 majuscule, 1 minuscule, 1 caractère spécial, 1 chiffre et 8 caractères minimum'})
+    }
     bcrypt.hash(req.body.password, 10) // on appelle la fonction de hash, on lui passe le mdp de la requête, salt de 10
         .then(hash => { // on recupere le hash pour l'ajouter a un nouveau user
             const user = new User({ // nouveau user qu'on enregistre dans la base de données
