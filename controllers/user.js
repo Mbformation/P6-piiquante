@@ -7,6 +7,10 @@ const jwt = require('jsonwebtoken');
 // On récupère le modèle User 
 const User = require('../models/user');
 
+// On importe dotenv
+require('dotenv').config();
+
+
 // Creation d'un utilisateur
 exports.signup = (req, res, next) => {
     const strongPassword = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#_?&])[A-Za-z\d@$!%_*#?&]{8,}$/
@@ -48,7 +52,7 @@ exports.login = (req, res, next) => {
                         userId: user._id,
                         token: jwt.sign(
                             { userId: user._id },
-                            'jfdv5FLQ0830KLPFHEL4',
+                            process.env.TOKEN,
                             { expiresIn: '24h' }
                         )
                     });

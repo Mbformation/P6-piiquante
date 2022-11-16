@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 // On importe fs qu'on utilise pour supprimer des fichiers
 const fs = require('fs');
 
+// On recupere toutes les sauces
 exports.getAllSauces = (req, res, next) => {
     Sauce.find().then(
       (sauces) => {
@@ -21,7 +22,7 @@ exports.getAllSauces = (req, res, next) => {
     );
   };
 
-
+// On récupère juste une sauce
 exports.getOneSauce = (req, res, next) => {
     Sauce.findOne({
       _id: req.params.id
@@ -38,6 +39,7 @@ exports.getOneSauce = (req, res, next) => {
     );
   };
 
+  // On crée une sauce
   exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
     delete sauceObject._id;
@@ -55,7 +57,7 @@ exports.getOneSauce = (req, res, next) => {
     .catch(error => { res.status(400).json( { error })})
  };
 
-
+// On modifie une sauce
  exports.modifySauce = (req, res, next) => {
     const sauceObject = req.file ? {
         ...JSON.parse(req.body.sauce),
@@ -84,7 +86,7 @@ exports.getOneSauce = (req, res, next) => {
         });
  };
 
-
+// On supprime la sauce
   exports.deleteSauce = (req, res, next) => {
     Sauce.findOne({ _id: req.params.id})
         .then(sauce => {
@@ -104,6 +106,7 @@ exports.getOneSauce = (req, res, next) => {
         });
  };
  
+ // On modifie la réaction à une sauce
  exports.likeSauce = async (req, res, next) => {
   const sauce = await Sauce.findOne({_id: req.params.id});
   const userCanLike = !sauce.usersLiked.includes(req.auth.userId);
