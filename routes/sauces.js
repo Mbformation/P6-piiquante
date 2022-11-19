@@ -16,7 +16,7 @@ const limiter = require('../middleware/rate-limit');
 const router = express.Router();
 
 // Création des routes pour les sauces
-router.get(`/`, limiter, saucesCtrl.getAllSauces);
+router.get(`/`, auth, limiter, saucesCtrl.getAllSauces);
 router.get('/:id', auth, limiter, saucesCtrl.getOneSauce);
 router.post('/', auth, multer, limiter, saucesCtrl.createSauce);
 router.put('/:id', auth, multer, limiter, saucesCtrl.modifySauce);

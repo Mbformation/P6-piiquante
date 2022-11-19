@@ -43,6 +43,10 @@ exports.getOneSauce = (req, res, next) => {
   exports.createSauce = (req, res, next) => {
     const sauceObject = JSON.parse(req.body.sauce);
     delete sauceObject._id;
+    const heat = Number.parseInt(sauceObject.heat);
+    if(heat<0 ||  heat >10){
+      return res.status(400).json({message: 'Veuillez entrer une note entre 0 et 10'});
+    }
     delete sauceObject._userId;
     const sauce = new Sauce({
         ...sauceObject,
